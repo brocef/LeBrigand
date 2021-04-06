@@ -1,4 +1,4 @@
-package lebrigand.core.spyglass.hooks;
+package src.core.spyglass.hooks;
 
 import com.sun.jdi.BooleanValue;
 import com.sun.jdi.Value;

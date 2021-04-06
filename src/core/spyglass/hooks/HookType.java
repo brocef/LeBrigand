@@ -1,4 +1,4 @@
-package lebrigand.core.spyglass.hooks;
+package src.core.spyglass.hooks;
 
 public enum HookType {
 	ARRAY, INTARRAY, BOOLEAN, INTEGER, OBJECTREF

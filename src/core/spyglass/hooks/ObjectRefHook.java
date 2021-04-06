@@ -1,4 +1,4 @@
-package lebrigand.core.spyglass.hooks;
+package src.core.spyglass.hooks;
 
 import java.util.List;
 

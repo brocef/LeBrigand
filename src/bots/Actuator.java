@@ -1,4 +1,4 @@
-package lebrigand.bots;
+package src.bots;
 
 public interface Actuator {
 	public void mouseMove(int x, int y);

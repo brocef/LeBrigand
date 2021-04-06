@@ -1,4 +1,4 @@
-package lebrigand.core.spyglass.hooks;
+package src.core.spyglass.hooks;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.IntegerValue;

@@ -1,8 +1,12 @@
-package lebrigand.core;
+package src.core;
 
 import java.awt.KeyboardFocusManager;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
 
-import com.melloware.jintellitype.JIntellitype;
+//import com.melloware.jintellitype.JIntellitype;
 import com.sun.java.accessibility.util.EventQueueMonitor;
 import com.threerings.yohoho.client.YoApp;
 
@@ -26,11 +30,11 @@ public class Core {
 //			System.exit(1);
 //		}
 
+        /*
 		if (!JIntellitype.isJIntellitypeSupported()) {
 			System.err.println("Intellitype not supported");
 			System.exit(1);
-		}
-
+		}*/
 		Core c = new Core(args);
 		c.run(); //Not actually a new thread, just a convenient name for an instance main method
 	}
@@ -38,14 +42,21 @@ public class Core {
 	public void run() {
 		bridge.start();
 		
-		System.setProperty("com.threerings.getdown" , "true");
-		System.setProperty("java.library.path" , "C:\\Users\\yesman\\AppData\\Roaming\\Three Rings Design\\Puzzle Pirates\\./native");
-		System.setProperty("resource_dir" , "C:\\Users\\yesman\\AppData\\Roaming\\Three Rings Design\\Puzzle Pirates\\./rsrc");
-		System.setProperty("devclient", "false");
-		System.setProperty("appdir" , "C:\\Users\\yesman\\AppData\\Roaming\\Three Rings Design\\Puzzle Pirates\\.");
-		System.setProperty("sun.awt.font.advancecache" , "off");
-		System.setProperty("sun.java2d.d3d" , "false");
-		System.setProperty("swing.aatext" , "true");
+		Properties p = new Properties();
+        FileInputStream in;
+        try {
+            in = new FileInputStream("jvm.prop");
+            p.load(in);
+            for (String s : p.stringPropertyNames()) {
+                System.setProperty(s, p.getProperty(s));
+            }
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+		}
+
 		YoApp.main(args);//This right here is the magic. Calling the main method here will run YPP in our JVM. Fuck yeah.
 		try {
 			bridge.join();

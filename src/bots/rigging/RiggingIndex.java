@@ -1,4 +1,4 @@
-package lebrigand.bots.rigging;
+package src.bots.rigging;
 
 public class RiggingIndex implements RiggingUtils {
 	private int row, col;

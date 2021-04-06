@@ -1,4 +1,4 @@
-package lebrigand.bots.rigging;
+package src.bots.rigging;
 import java.awt.event.KeyEvent;
 
 public interface RiggingUtils {

@@ -1,4 +1,4 @@
-package lebrigand.core.spyglass;
+package src.core.spyglass;
 
 import java.awt.Component;
 import java.awt.Point;
@@ -12,13 +12,13 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import lebrigand.bots.rigging.RiggingUtils;
-import lebrigand.core.spyglass.hooks.ArrayHook;
-import lebrigand.core.spyglass.hooks.BooleanHook;
-import lebrigand.core.spyglass.hooks.Hook;
-import lebrigand.core.spyglass.hooks.IntArrayHook;
-import lebrigand.core.spyglass.hooks.IntegerHook;
-import lebrigand.core.spyglass.hooks.ObjectRefHook;
+import src.bots.rigging.RiggingUtils;
+import src.core.spyglass.hooks.ArrayHook;
+import src.core.spyglass.hooks.BooleanHook;
+import src.core.spyglass.hooks.Hook;
+import src.core.spyglass.hooks.IntArrayHook;
+import src.core.spyglass.hooks.IntegerHook;
+import src.core.spyglass.hooks.ObjectRefHook;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.IntegerValue;

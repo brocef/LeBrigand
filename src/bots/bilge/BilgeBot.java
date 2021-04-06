@@ -1,4 +1,4 @@
-package lebrigand.bots.bilge;
+package src.bots.bilge;
 
 import java.awt.AWTException;
 import java.awt.Point;
@@ -16,9 +16,9 @@ import java.util.Stack;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import lebrigand.bots.SpyglassBot;
-import lebrigand.core.spyglass.Spyglass;
-import lebrigand.core.ui.Messenger;
+import src.bots.SpyglassBot;
+import src.core.spyglass.Spyglass;
+import src.core.ui.Messenger;
 
 public class BilgeBot extends SpyglassBot implements BilgeUtils, Runnable {
 	private static final String BOT_NAME = "BilgeBot";

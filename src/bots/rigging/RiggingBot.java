@@ -1,4 +1,4 @@
-package lebrigand.bots.rigging;
+package src.bots.rigging;
 
 import java.awt.AWTException;
 import java.awt.Point;
@@ -11,9 +11,9 @@ import java.util.Map.Entry;
 
 import javax.swing.JFrame;
 
-import lebrigand.bots.SpyglassBot;
-import lebrigand.core.spyglass.Spyglass;
-import lebrigand.core.ui.Messenger;
+import src.bots.SpyglassBot;
+import src.core.spyglass.Spyglass;
+import src.core.ui.Messenger;
 
 public class RiggingBot extends SpyglassBot implements RiggingUtils {
 
@@ -50,9 +50,13 @@ public class RiggingBot extends SpyglassBot implements RiggingUtils {
 				for (int j=0; j<3; j++) {
 					int pulley = (getRiggingPulley() + j) % PULLEY_COUNT;
 					rot = getBestRotation(r, pulley);
-					if (rot.getValue() > 0) {
+					if (rot.getValue() > 3) {
 						log("Best rotation was %s clearing %s pieces", rot.getKey().toString(), rot.getValue().toString());
-						break;
+						if (rot.getValue() > 5) {
+							break;
+						} else {
+							log("However that's not enough!");
+						}
 					} else {
 						nextMoveWillClear = false;
 						log("No immediate point-yeilding rotation found. Prepping next pulley");

@@ -1,14 +1,16 @@
-package lebrigand.core.spyglass;
+package src.core.spyglass;
+
 import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JFrame;
 
-import lebrigand.core.ui.Messenger;
+import src.core.ui.Messenger;
 
 import com.sun.java.accessibility.util.GUIInitializedListener;
 import com.sun.java.accessibility.util.TopLevelWindowListener;
@@ -61,12 +63,12 @@ public class Spyglass implements TopLevelWindowListener, GUIInitializedListener 
 		AttachingConnector cxn;
 
 		for (AttachingConnector c:cxns) {
-			//			msger.log("%s --- %s\n", c.name(), c.toString());
+			msger.log("%s --- %s\n", c.name(), c.toString());
 			if (c.name().equalsIgnoreCase("com.sun.jdi.SocketAttach")) {
 				cxn = c;
 				Map<String, Argument> arg = cxn.defaultArguments();
-				//				for (Entry<String, Argument> e:arg.entrySet())
-				//					msger.log("%s - %s\n", e.getKey(), e.getValue().toString());
+				for (Entry<String, Argument> e:arg.entrySet())
+					msger.log("%s - %s\n", e.getKey(), e.getValue().toString());
 				arg.get("hostname").setValue("localhost");
 				arg.get("port").setValue("6500");
 				try {

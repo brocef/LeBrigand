@@ -1,4 +1,4 @@
-package lebrigand.bots;
+package src.bots;
 
 import java.awt.AWTException;
 import java.awt.Point;
@@ -9,8 +9,8 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPasswordField;
 
-import lebrigand.core.spyglass.Spyglass;
-import lebrigand.core.ui.Messenger;
+import src.core.spyglass.Spyglass;
+import src.core.ui.Messenger;
 
 public abstract class SpyglassBot extends ActuatorBot {
 	//Hide all the things from bots

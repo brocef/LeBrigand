@@ -1,4 +1,4 @@
-package lebrigand.bots.bilge;
+package src.bots.bilge;
 
 public class Move {
 	private int y;

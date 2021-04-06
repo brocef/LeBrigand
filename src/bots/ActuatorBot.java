@@ -1,4 +1,4 @@
-package lebrigand.bots;
+package src.bots;
 
 import java.awt.AWTEvent;
 import java.awt.AWTException;
@@ -19,7 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import lebrigand.core.ui.Messenger;
+import src.core.ui.Messenger;
 
 
 public abstract class ActuatorBot extends BrigandBot implements Actuator {

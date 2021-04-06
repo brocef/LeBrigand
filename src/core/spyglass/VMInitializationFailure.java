@@ -1,4 +1,4 @@
-package lebrigand.core.spyglass;
+package src.core.spyglass;
 
 public class VMInitializationFailure extends Exception {
 	/**

@@ -1,4 +1,4 @@
-package lebrigand.core.ui;
+package src.core.ui;
 
 public interface Messenger {
 	public void updateBotStatus(String status);

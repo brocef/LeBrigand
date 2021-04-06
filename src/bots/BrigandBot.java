@@ -1,6 +1,6 @@
-package lebrigand.bots;
+package src.bots;
 
-import lebrigand.core.ui.Messenger;
+import src.core.ui.Messenger;
 
 public abstract class BrigandBot extends Thread implements Messenger {
 	private boolean kill;

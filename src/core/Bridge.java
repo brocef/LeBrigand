@@ -1,22 +1,22 @@
-package lebrigand.core;
+package src.core;
 
 import java.awt.AWTException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import lebrigand.bots.SpyglassBot;
-import lebrigand.bots.bilge.BilgeBot;
-import lebrigand.bots.rigging.RiggingBot;
-import lebrigand.bots.testing.TestBot;
-import lebrigand.core.spyglass.Spyglass;
-import lebrigand.core.spyglass.VMInitializationFailure;
-import lebrigand.core.ui.LeBrigandFrame;
+import src.bots.SpyglassBot;
+import src.bots.bilge.BilgeBot;
+import src.bots.rigging.RiggingBot;
+import src.bots.testing.TestBot;
+import src.core.spyglass.Spyglass;
+import src.core.spyglass.VMInitializationFailure;
+import src.core.ui.LeBrigandFrame;
 
-import com.melloware.jintellitype.HotkeyListener;
-import com.melloware.jintellitype.IntellitypeListener;
-import com.melloware.jintellitype.JIntellitype;
+//import com.melloware.jintellitype.HotkeyListener;
+//import com.melloware.jintellitype.IntellitypeListener;
+//import com.melloware.jintellitype.JIntellitype;
 
-public class Bridge extends Thread implements ActionListener, HotkeyListener, IntellitypeListener {
+public class Bridge extends Thread implements ActionListener {
 	//UI Stuff
 	LeBrigandFrame df;
 
@@ -33,11 +33,13 @@ public class Bridge extends Thread implements ActionListener, HotkeyListener, In
 		spy.addStateSubscriber(df);
 		currentBot = null;
 
+        /*
 		JIntellitype.getInstance().addHotKeyListener(this);
 		JIntellitype.getInstance().addIntellitypeListener(this);
 		JIntellitype.getInstance().registerHotKey(1, JIntellitype.MOD_CONTROL + JIntellitype.MOD_SHIFT, (int)'V'); //KILL CURRENT BOT
 		JIntellitype.getInstance().registerHotKey(2, JIntellitype.MOD_CONTROL + JIntellitype.MOD_SHIFT, (int)'C'); //Run Rigging Bot
 		JIntellitype.getInstance().registerHotKey(3, JIntellitype.MOD_CONTROL + JIntellitype.MOD_SHIFT, (int)'D'); //Run Test Bot
+        */
 	}
 
 	protected Spyglass getSpyglass() {
@@ -61,7 +63,7 @@ public class Bridge extends Thread implements ActionListener, HotkeyListener, In
 		//			e.printStackTrace();
 		//		}
 	}
-
+/*
 	@Override
 	public void onIntellitype(int command) {
 
@@ -95,6 +97,7 @@ public class Bridge extends Thread implements ActionListener, HotkeyListener, In
 			}
 		}
 	}
+	*/
 
 	@Override
 	public void actionPerformed(ActionEvent a) {

@@ -1,4 +1,4 @@
-package lebrigand.core.ui;
+package src.core.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -21,9 +21,9 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
-import lebrigand.core.Bridge;
-import lebrigand.core.spyglass.GameState;
-import lebrigand.core.spyglass.GameStateSubscriber;
+import src.core.Bridge;
+import src.core.spyglass.GameState;
+import src.core.spyglass.GameStateSubscriber;
 
 
 public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscriber {
@@ -66,7 +66,7 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 	public LeBrigandFrame(Bridge bridge) {
 		this.bridge = bridge;
 		setTitle("LeBrigand");
-		log = new File("logfile.txt");
+		log = new File("lebrigand.log");
 		//		this.debug = dbg;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 750, 550);
