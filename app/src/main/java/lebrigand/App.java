@@ -4,9 +4,12 @@ import java.awt.KeyboardFocusManager;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.*;
 
 import lebrigand.core.Bridge;
+import lebrigand.LeLogger;
 
 //import com.melloware.jintellitype.JIntellitype;
 import com.sun.java.accessibility.util.EventQueueMonitor;
@@ -15,6 +18,11 @@ import com.threerings.yohoho.client.YoApp;
 public class App {
 	String[] args;
 	Bridge bridge;
+
+	private static Logger logger = Logger.getLogger(App.class.getName());
+	static {
+		LeLogger.setUpLogger();
+	}
 
 	public App(String[] args) {
 		bridge = new Bridge();
@@ -37,6 +45,8 @@ public class App {
 			System.err.println("Intellitype not supported");
 			System.exit(1);
 		}*/
+		App.logger.info("Starting LeBrigand");
+		App.logger.info(App.class.getName());
 		App c = new App(args);
 		c.run(); //Not actually a new thread, just a convenient name for an instance main method
 	}
@@ -47,7 +57,7 @@ public class App {
 		Properties p = new Properties();
         FileInputStream in;
         try {
-            in = new FileInputStream("jvm.prop");
+            in = new FileInputStream("../jvm.prop");
             p.load(in);
             for (String s : p.stringPropertyNames()) {
                 System.setProperty(s, p.getProperty(s));

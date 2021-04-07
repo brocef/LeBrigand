@@ -3,7 +3,10 @@ package lebrigand.core;
 import java.awt.AWTException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
+import lebrigand.LeLogger;
 import lebrigand.bots.SpyglassBot;
 import lebrigand.bots.bilge.BilgeBot;
 import lebrigand.bots.rigging.RiggingBot;
@@ -17,6 +20,8 @@ import lebrigand.core.ui.LeBrigandFrame;
 //import com.melloware.jintellitype.JIntellitype;
 
 public class Bridge extends Thread implements ActionListener {
+	private static Logger logger = Logger.getLogger(Bridge.class.getName());
+
 	//UI Stuff
 	LeBrigandFrame df;
 
@@ -51,6 +56,7 @@ public class Bridge extends Thread implements ActionListener {
 	}
 
 	public void run() {
+		this.logger.info("Starting bridge");
 		df.setVisible(true);
 
 		//		try {
@@ -101,13 +107,15 @@ public class Bridge extends Thread implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent a) {
+		this.logger.info("ActionPerformed: "+a.toString());
 		if (a.getActionCommand().equals(LeBrigandFrame.AC_INIT_VM)) {
-			df.log("Initializing VM");
+			this.logger.info("Initializing VM");
 			try {
 				if (!spy.isSpyglassReady())
 					spy.initializeSpyglass();
 			} catch(VMInitializationFailure e) {
-				df.log("Fatal Error: VM Failed to initialize!");
+				this.logger.log(Level.SEVERE, "Fatal Error: VM Failed to initialize!");
+				this.logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		} else if (a.getActionCommand().equals(LeBrigandFrame.AC_START_BILGE_BOT)) {
 			try {
@@ -116,7 +124,7 @@ public class Bridge extends Thread implements ActionListener {
 				currentBot = new BilgeBot(spy, spy.updateGameState().getYPPFrame(), df);
 				currentBot.start();
 			} catch (AWTException e) {
-				e.printStackTrace();
+				this.logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		} else if (a.getActionCommand().equals(LeBrigandFrame.AC_INPUT)) {
 			try {
@@ -125,7 +133,7 @@ public class Bridge extends Thread implements ActionListener {
 				currentBot = new TestBot(spy, spy.updateGameState().getYPPFrame(), df);
 				currentBot.start();
 			} catch (AWTException e) {
-				e.printStackTrace();
+				this.logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		} else if (a.getActionCommand().equals(LeBrigandFrame.AC_START_RIGGING_BOT)) {
 			try {
@@ -134,7 +142,7 @@ public class Bridge extends Thread implements ActionListener {
 				currentBot = new RiggingBot(spy, spy.updateGameState().getYPPFrame(), df);
 				currentBot.start();
 			} catch (AWTException e) {
-				e.printStackTrace();
+				this.logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 	}

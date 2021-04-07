@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import javax.swing.JFrame;
 
 import lebrigand.core.ui.Messenger;
+import lebrigand.LeLogger;
 
 import com.sun.java.accessibility.util.GUIInitializedListener;
 import com.sun.java.accessibility.util.TopLevelWindowListener;
@@ -124,6 +125,7 @@ public class Spyglass implements TopLevelWindowListener, GUIInitializedListener 
 	public void guiInitialized() {
 		//msger.log("GUI initialized");
 		//Perhaps not necessary to have this, but will keep around for later
+		LeLogger.setUpLogger();
 	}
 
 	@Override
@@ -135,6 +137,7 @@ public class Spyglass implements TopLevelWindowListener, GUIInitializedListener 
 //					new TheFucker(yppFrame, KeyboardFocusManager.getCurrentKeyboardFocusManager()));
 			if (vm != null)
 				intializeGameState();
+			LeLogger.setUpLogger();
 		}
 	}
 

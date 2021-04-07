@@ -28,4 +28,5 @@ dependencies {
 application {
     // Define the main class for the application.
     mainClass.set("lebrigand.App")
+    applicationDefaultJvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,address=6500,suspend=n")
 }

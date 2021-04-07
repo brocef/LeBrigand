@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Logger;
+import java.util.logging.LogManager;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -17,16 +19,18 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
+import lebrigand.LeLogger;
 import lebrigand.core.Bridge;
 import lebrigand.core.spyglass.GameState;
 import lebrigand.core.spyglass.GameStateSubscriber;
+import lebrigand.core.ui.GuiLogHandler;
 
 
 public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscriber {
+	private static Logger logger = Logger.getLogger(LeBrigandFrame.class.getName());
 	public static final String AC_START_BILGE_BOT = "START_BILGE_BOT";
 	public static final String AC_INIT_VM = "INIT_VM";
 	public static final String AC_INPUT = "INPUT";
@@ -39,6 +43,7 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 	//private Debugger debug;
 	private JScrollPane scrollPane;
 	private JList<String> list;
+	private DefaultListModel<String> message_model;
 	private File log;
 	private JPanel panel;
 	private JLabel lblActiveBot;
@@ -60,13 +65,15 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 	private JLabel lblRiggingPanelStarsK;
 	private JLabel lblRiggingNextCoil;
 
+	private GuiLogHandler logHandler;
+
 	/**
 	 * Create the frame.
 	 */
 	public LeBrigandFrame(Bridge bridge) {
 		this.bridge = bridge;
 		setTitle("LeBrigand");
-		log = new File("lebrigand.log");
+		log = new File("lebrigand.old.log");
 		//		this.debug = dbg;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 750, 550);
@@ -83,6 +90,8 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 		list.setVisibleRowCount(8);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		scrollPane.setViewportView(list);
+		this.message_model = new DefaultListModel<String>();
+		list.setModel(message_model);
 
 		panel = new JPanel();
 		contentPane.add(panel, BorderLayout.EAST);
@@ -173,6 +182,9 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 				bridge.actionPerformed(evt);
 			}
 		});
+		this.logHandler = new GuiLogHandler(this.message_model);
+		LeLogger.handlers.add(this.logHandler);
+		LeLogger.setUpLogger();
 	}
 
 	public void log(Object o) {
@@ -189,13 +201,7 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ListModel<String> lm = list.getModel();
-		DefaultListModel<String> newmodel = new DefaultListModel<String>();
-		newmodel.addElement(logline);
-		for (int i=0; i<lm.getSize(); i++) {
-			newmodel.addElement(lm.getElementAt(i));
-		}
-		list.setModel(newmodel);
+		this.logger.info(logline);
 	}
 
 	public void log(String format, Object...args) {
@@ -274,6 +280,7 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 	}
 	
 	public void updateGameData(GameState state) {
+		this.logger.info("Updating Game Data");
 		updateActiveBot(bridge.getActiveBotName());
 		updateDutyReportMonitor(state.getDutyReportIsUp());
 		updateActionSprites(-1);
