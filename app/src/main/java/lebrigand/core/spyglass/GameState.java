@@ -1,8 +1,14 @@
 package lebrigand.core.spyglass;
 
+import java.lang.ref.WeakReference;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Graphics;
+import java.awt.Color;
 import java.util.HashMap;
 
 import javax.swing.JButton;
@@ -11,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import lebrigand.bots.rigging.RiggingUtils;
 import lebrigand.core.spyglass.hooks.ArrayHook;
@@ -26,6 +33,7 @@ import com.sun.jdi.VirtualMachine;
 
 
 public class GameState {
+	private static Logger logger = Logger.getLogger(GameState.class.getName());
 	//Critical hook information
 
 	private static final String CLASSNAME_TUTORIAL_PANEL = "com.threerings.piracy.puzzle.client.TutorialPanel";
@@ -60,7 +68,13 @@ public class GameState {
 
 	private static final String CLASSNAME_RIGGING_PANEL = "com.threerings.piracy.puzzle.duty.rigging.client.RiggingPanel";
 	private static final String RIGGING_PANEL_FIELDS[] = {"_opanel" /*Will be DutyReportView when DRV is up*/,
-		"stars", "stars.n", "stars.m", "stars.l", "stars.k"};
+		"stars", "stars.n", "stars.m", "stars.l", "stars.k", "_controller"};
+
+	private static final String CLASSNAME_RIGGING_CONTROLLER = "com.threerings.piracy.puzzle.duty.rigging.client.RiggingController";
+	private static final String RIGGING_CONTROLLER_FIELDS[] = {"H", "j_", "l_"};
+	
+	private static final String CLASSNAME_DUTY_PERFORMANCE = "com.threerings.piracy.puzzle.duty.util.DutyPerformance";
+	private static final String DUTY_PERFORMANCE_FIELDS[] = {"_moves", "_score", "_ticks", "BUCKETS"};
 
 	private Spyglass spy;
 
@@ -123,7 +137,7 @@ public class GameState {
 	private IntegerHook waterLevelHook, bilgeActionAnimsSizeHook, bilgeActionSpritesSizeHook;
 
 	//RIGGING VARS
-	private JComponent riggingBoardView;
+	private WeakReference<JComponent> riggingBoardView;
 	private ObjectRefHook riggingBoardViewHook, riggingBoardHook;
 	private ArrayHook riggingBoardArrHook;
 	private ObjectRefHook riggingCurHook;
@@ -136,12 +150,22 @@ public class GameState {
 	private IntegerHook riggingWispsSizeHook;
 	private IntegerHook riggingNextCacheSpotHook;
 	private BooleanHook riggingKeyDragHook;
+	private ObjectRefHook riggingControllerHook;
+	private ObjectRefHook riggingControllerHHook;
+	private ObjectRefHook riggingControllerjHook;
+	private ObjectRefHook riggingControllerlHook;
 
 	//RIGGING BOARD VARS
 	private ObjectRefHook riggingPanelHook;
 	private ObjectRefHook riggingPanelStarsHook, riggingPanelOPanelHook;
 	private IntegerHook riggingPanelStarsNHook, riggingPanelStarsMHook, riggingPanelStarsLHook, riggingPanelStarsKHook;
 
+	// DUTY PERFORMANCE VARS
+	private ObjectRefHook dutyPerformanceHook;
+	private IntArrayHook dutyPerformanceMovesHook;
+	private IntArrayHook dutyPerformanceScoreHook;
+	private IntegerHook dutyPerformanceTicksHook;
+	private IntegerHook dutyPerformanceBucketsHook;
 
 	public GameState(Spyglass spy, JFrame yppFrame, VirtualMachine vm) {
 		this.yppFrame = yppFrame;
@@ -167,7 +191,7 @@ public class GameState {
 		if (yppFrame.getContentPane().getComponentCount() > 0)
 			diveIntoPanel((JPanel) yppFrame.getContentPane().getComponent(0)); //Next, we get the UI hooks
 		else
-			spy.gameHookError("Critical failure to retreive window components");
+			logger.log(Level.SEVERE, "Critical failure to retreive window components");
 	}
 
 	public JButton getLogonButton() {
@@ -202,8 +226,12 @@ public class GameState {
 	}
 
 	public Point getRiggingBoardViewLocation() {
-		updateUIHooks();
-		return riggingBoardView.getLocation();
+		JComponent cachedBoardView = this.riggingBoardView.get();
+		if (cachedBoardView == null) {
+			updateUIHooks();
+		}
+		JComponent boardView = this.riggingBoardView.get();
+		return boardView.getLocation();
 	}
 
 	public int[] getBilgeBoard() {
@@ -347,6 +375,22 @@ public class GameState {
 		return isAddNotifyComplete() && getDutyReportViewWidth() > 0 && getDutyReportViewHeight() > 0;
 	}
 
+	public int[] getDutyPerformanceScore() {
+		return this.dutyPerformanceScoreHook.getIntArray();
+	}
+
+	public int[] getDutyPerformanceMoves() {
+		return this.dutyPerformanceMovesHook.getIntArray();
+	}
+
+	public int getDutyPerformanceTicks() {
+		return this.dutyPerformanceTicksHook.getValue();
+	}
+
+	public int getDutyPerformanceBuckets() {
+		return this.dutyPerformanceBucketsHook.getValue();
+	}
+
 	public int getWaterLevel() {
 		return waterLevelHook.getValue();
 	}
@@ -387,11 +431,10 @@ public class GameState {
 		Component[] comps = panel.getComponents();
 		for (Component c:comps) {
 			String classname = c.getClass().getName();
-			//						spy.gameHookError(classname);
 			if (classname.equalsIgnoreCase(CLASSNAME_BILGE_BOARD_VIEW)) {
 				bilgeBoardView = (JComponent) c;
 			} else if (classname.equalsIgnoreCase(CLASSNAME_RIGGING_BOARD_VIEW)) {
-				riggingBoardView = (JComponent) c;
+				riggingBoardView = new WeakReference<JComponent>((JComponent) c);
 			} else if (classname.equalsIgnoreCase(CLASSNAME_DEFAULT_LOGON_PANEL)) {
 				populateLogonPanelHooks((JPanel) c);
 			} else if (classname.equals(CLASSNAME_TUTORIAL_PANEL)) {
@@ -439,7 +482,9 @@ public class GameState {
 			ObjectRefHook owner = getRegisteredObjRefHook(className);
 			hook = new ObjectRefHook(vm, owner, fieldName);
 		}
-		hookMap.put(String.format("%s.%s", className, fieldName), hook);
+		String hookName = String.format("%s.%s", className, fieldName);
+		hookMap.put(hookName, hook);
+		this.logger.info("Added new hook: "+hookName);
 		return hook;
 	}
 
@@ -525,6 +570,8 @@ public class GameState {
 			case 1:
 				riggingPulleyHook = registerNewIntHook(className, fieldName);
 				break;
+			default:
+				throw new RuntimeException("Failed to register all hooks!");
 			}
 		}
 	}
@@ -565,6 +612,8 @@ public class GameState {
 			case 9:
 				riggingKeyDragHook = registerNewBoolHook(className, fieldName);
 				break;
+			default:
+				throw new RuntimeException("Failed to register all hooks!");
 			}
 		}
 	}
@@ -593,6 +642,32 @@ public class GameState {
 			case 5:
 				riggingPanelStarsKHook = registerNewIntHook(className, fieldName);
 				break;
+			case 6:
+				riggingControllerHook = registerNewObjRefHook(className, fieldName);
+				hookMap.put(CLASSNAME_RIGGING_CONTROLLER, riggingControllerHook);
+				break;
+			default:
+				throw new RuntimeException("Failed to register all hooks!");
+			}
+		}
+	}
+
+	protected void setUpRiggingControllerHooks() {
+		String className = CLASSNAME_RIGGING_CONTROLLER;
+		for (int i=0; i<RIGGING_CONTROLLER_FIELDS.length; i++) {
+			String fieldName = RIGGING_CONTROLLER_FIELDS[i];
+			switch(i) {
+			case 0:
+				riggingControllerHHook = registerNewObjRefHook(className, fieldName);
+				break;
+			case 1:
+				riggingControllerjHook = registerNewObjRefHook(className, fieldName);
+				break;
+			case 2:
+				riggingControllerlHook = registerNewObjRefHook(className, fieldName);
+				break;
+			default:
+				throw new RuntimeException("Failed to register all hooks!");
 			}
 		}
 	}
@@ -619,6 +694,8 @@ public class GameState {
 			case 0:
 				bilgeBoardArrHook = registerNewIntArrHook(className, fieldName, true);
 				break;
+			default:
+				throw new RuntimeException("Failed to register all hooks!");
 			}
 		}
 	}
@@ -644,6 +721,8 @@ public class GameState {
 			case 4:
 				bilgeActionAnimsSizeHook = registerNewIntHook(className, fieldName);
 				break;
+			default:
+				throw new RuntimeException("Failed to register all hooks!");
 			}
 		}
 	}
@@ -663,18 +742,103 @@ public class GameState {
 			case 2:
 				isAddNotifyCompleteHook = registerNewBoolHook(className, fieldName);
 				break;
+			default:
+				throw new RuntimeException("Failed to register all hooks!");
+			}
+		}
+	}
+
+	protected void setUpDutyPerformanceHooks() {
+		String className = CLASSNAME_DUTY_PERFORMANCE;
+		dutyPerformanceHook = registerNewObjRefHook(className);
+		for (int i=0; i<DUTY_PERFORMANCE_FIELDS.length; i++) {
+			String fieldName = DUTY_PERFORMANCE_FIELDS[i];
+			switch (i) {
+			case 0:
+				dutyPerformanceMovesHook = registerNewIntArrHook(className, fieldName);
+				break;
+			case 1:
+				dutyPerformanceScoreHook = registerNewIntArrHook(className, fieldName);
+				break;
+			case 2:
+				dutyPerformanceTicksHook = registerNewIntHook(className, fieldName);
+				break;
+			case 3:
+				dutyPerformanceBucketsHook = registerNewIntHook(className, fieldName);
+				break;
+			default:
+				throw new RuntimeException("Failed to register all hooks!");
 			}
 		}
 	}
 
 	public void setUpHooks() {
-		setUpDutyReportViewHooks();
-		setUpBilgeBoardViewHooks();
-		setUpBilgeBoardHooks();
-		setUpRiggingBoardViewHooks();
-		setUpRiggingBoardHooks();
-		setUpPlayingPanelHooks();
-		setUpRiggingPanelHooks();
+		try {
+			setUpDutyReportViewHooks();
+			setUpBilgeBoardViewHooks();
+			setUpBilgeBoardHooks();
+			setUpRiggingBoardViewHooks();
+			setUpRiggingBoardHooks();
+			setUpPlayingPanelHooks();
+			setUpRiggingPanelHooks();
+			setUpRiggingControllerHooks();
+			setUpDutyPerformanceHooks();
+		} catch (Exception ex) {
+			this.logger.log(Level.SEVERE, "Failed to initialize all game hooks!", ex);
+		}
+	}
+
+	public void paint(Graphics g, Container glassPane) {
+		Component btn = (Component) this.getLogonButton();
+		if (btn != null) {
+			this.drawDebugBox(g, glassPane, btn, "Logon Button");
+		}
+		if (this.tutorialPanel != null) {
+			this.drawDebugBox(g, glassPane, this.tutorialPanel, "Tutorial Panel");
+		}
+		if (this.tutorialPanelDismiss != null) {
+			this.drawDebugBox(g, glassPane, this.tutorialPanelDismiss, "Tutorial Panel Dismiss");
+		}
+		if (this.riggingBoardView.get() != null) {
+			this.drawDebugBox(g, glassPane, this.riggingBoardView.get(), "Rigging Board View");
+			Color orig = g.getColor();
+			g.setColor(Color.RED);
+			String score = "Rigging score: ";
+			int[] score_arr = this.getDutyPerformanceScore();
+			if (score_arr == null) {
+				score += "NULL";
+			} else {
+				for (int i=0; i<score_arr.length; i++) {
+					score += score_arr[i]+",";
+				}
+			}
+			g.drawString(score, 20, 100);
+			String moves = "Rigging moves: ";
+			int[] moves_arr = this.getDutyPerformanceMoves();
+			if (moves_arr == null) {
+				moves += "NULL";
+			} else {
+				for (int i=0; i<moves_arr.length; i++) {
+					moves += moves_arr[i]+",";
+				}
+			}
+			g.drawString(moves, 20, 120);
+			g.drawString("Ticks: "+this.getDutyPerformanceTicks(), 20, 140);
+			g.setColor(orig);
+		}
+	}
+
+	private void drawDebugBox(Graphics g, Container glassPane, Component comp, String label) {
+		Rectangle bounds = SwingUtilities.convertRectangle(comp.getParent(), comp.getBounds(), glassPane);
+		Color orig = g.getColor();
+		g.setColor(Color.RED);
+		g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+		if (bounds.y - 10 > 0) {
+			g.drawString(label, bounds.x, bounds.y - 10);
+		} else {
+			g.drawString(label, bounds.x, bounds.y + 10);
+		}
+		g.setColor(orig);
 	}
 
 	public GameState updateGameState() {

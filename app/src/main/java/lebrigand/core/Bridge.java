@@ -119,28 +119,34 @@ public class Bridge extends Thread implements ActionListener {
 			}
 		} else if (a.getActionCommand().equals(LeBrigandFrame.AC_START_BILGE_BOT)) {
 			try {
-				if (currentBot != null && currentBot.stillAlive())
+				if (currentBot != null && currentBot.isAlive())
 					currentBot.killBot();
-				currentBot = new BilgeBot(spy, spy.updateGameState().getYPPFrame(), df);
-				currentBot.start();
+				else {
+					currentBot = new BilgeBot(spy, spy.updateGameState().getYPPFrame(), df);
+					currentBot.start();
+				}
 			} catch (AWTException e) {
 				this.logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		} else if (a.getActionCommand().equals(LeBrigandFrame.AC_INPUT)) {
 			try {
-				if (currentBot != null && currentBot.stillAlive())
+				if (currentBot != null && currentBot.isAlive()) {
 					currentBot.killBot();
-				currentBot = new TestBot(spy, spy.updateGameState().getYPPFrame(), df);
-				currentBot.start();
+				} else {
+					currentBot = new TestBot(spy, spy.updateGameState().getYPPFrame(), df);
+					currentBot.start();
+				}
 			} catch (AWTException e) {
 				this.logger.log(Level.SEVERE, e.getMessage(), e);
 			}
 		} else if (a.getActionCommand().equals(LeBrigandFrame.AC_START_RIGGING_BOT)) {
 			try {
-				if (currentBot != null && currentBot.stillAlive())
+				if (currentBot != null && currentBot.isAlive()) {
 					currentBot.killBot();
-				currentBot = new RiggingBot(spy, spy.updateGameState().getYPPFrame(), df);
-				currentBot.start();
+				} else {
+					currentBot = new RiggingBot(spy, spy.updateGameState().getYPPFrame(), df);
+					currentBot.start();
+				}
 			} catch (AWTException e) {
 				this.logger.log(Level.SEVERE, e.getMessage(), e);
 			}

@@ -7,11 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
 import lebrigand.core.ui.Messenger;
 import lebrigand.LeLogger;
+import lebrigand.core.ui.GlassPane;
 
 import com.sun.java.accessibility.util.GUIInitializedListener;
 import com.sun.java.accessibility.util.TopLevelWindowListener;
@@ -25,6 +27,7 @@ import com.threerings.media.ManagedJFrame;
 
 
 public class Spyglass implements TopLevelWindowListener, GUIInitializedListener {
+	private static Logger logger = Logger.getLogger(Spyglass.class.getName());
 	Messenger msger;
 
 	private ArrayList<GameStateSubscriber> stateSubscribers;
@@ -33,6 +36,7 @@ public class Spyglass implements TopLevelWindowListener, GUIInitializedListener 
 	VirtualMachine vm;
 	GameState game;
 	JFrame yppFrame;
+	GlassPane glassPane;
 
 	public Spyglass(Messenger msger) {
 		vm = null;
@@ -87,21 +91,22 @@ public class Spyglass implements TopLevelWindowListener, GUIInitializedListener 
 			msger.log("Fatal error. VM failed to initialize.");
 			throw new VMInitializationFailure();
 		} else if (yppFrame != null)
-			intializeGameState();
+			this.intializeGameState();
 	}
-	
+
 	public synchronized GameState updateGameState() {
-		if (game != null)
-			return game.updateGameState();
+		if (this.game != null)
+			return this.game.updateGameState();
 		return null;
 	}
-	
+
 	public GameState getOldGameState() {
-		return game;
+		return this.game;
 	}
-	
+
 	private void intializeGameState() {
-		game = new GameState(this, yppFrame, vm);
+		this.game = new GameState(this, yppFrame, vm);
+		this.glassPane.game = this.game;
 	}
 	
 	public void addStateSubscriber(GameStateSubscriber subscriber) {
@@ -113,19 +118,15 @@ public class Spyglass implements TopLevelWindowListener, GUIInitializedListener 
 	}
 	
 	protected void broadcastGameState(GameState state) {
-		for (GameStateSubscriber subscriber:stateSubscribers)
-			subscriber.updateGameData(state);
-	}
-	
-	protected void gameHookError(String message) {
-		msger.log("Game Hook Error: %s", message);
+		// for (GameStateSubscriber subscriber:stateSubscribers)
+			// subscriber.updateGameData(state);
 	}
 	
 	@Override
 	public void guiInitialized() {
 		//msger.log("GUI initialized");
 		//Perhaps not necessary to have this, but will keep around for later
-		LeLogger.setUpLogger();
+		// LeLogger.setUpLogger();
 	}
 
 	@Override
@@ -136,8 +137,14 @@ public class Spyglass implements TopLevelWindowListener, GUIInitializedListener 
 //			KeyboardFocusManager.setCurrentKeyboardFocusManager(
 //					new TheFucker(yppFrame, KeyboardFocusManager.getCurrentKeyboardFocusManager()));
 			if (vm != null)
-				intializeGameState();
+				this.intializeGameState();
 			LeLogger.setUpLogger();
+			this.glassPane = new GlassPane(yppFrame.getContentPane());
+			yppFrame.setGlassPane(this.glassPane);
+			this.glassPane.setVisible(true);
+			this.glassPane.setEnabled(true);
+			this.glassPane.setOpaque(false);
+			yppFrame.validate();
 		}
 	}
 

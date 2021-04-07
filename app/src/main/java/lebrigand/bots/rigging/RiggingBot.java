@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
@@ -16,6 +17,7 @@ import lebrigand.core.spyglass.Spyglass;
 import lebrigand.core.ui.Messenger;
 
 public class RiggingBot extends SpyglassBot implements RiggingUtils {
+	private static Logger logger = Logger.getLogger(RiggingBot.class.getName());
 
 	public RiggingBot(Spyglass spy, JFrame yppFrame, Messenger msger) throws AWTException {
 		super(spy, yppFrame, msger);
@@ -28,7 +30,7 @@ public class RiggingBot extends SpyglassBot implements RiggingUtils {
 
 	@Override
 	public void run() {
-		log("Rigging Bot Starting");
+		this.logger.info("Rigging Bot Starting");
 		updateBotStatus("Running");
 
 		try {
@@ -47,33 +49,35 @@ public class RiggingBot extends SpyglassBot implements RiggingUtils {
 				RiggingBoard r = new RiggingBoard(getRiggingBoard());
 				Entry<Rotation,Integer> rot = null;
 				boolean nextMoveWillClear = true;
+				int current_pulley = getRiggingPulley();
 				for (int j=0; j<3; j++) {
-					int pulley = (getRiggingPulley() + j) % PULLEY_COUNT;
+					int pulley = (current_pulley + j) % PULLEY_COUNT;
 					rot = getBestRotation(r, pulley);
 					if (rot.getValue() > 3) {
-						log("Best rotation was %s clearing %s pieces", rot.getKey().toString(), rot.getValue().toString());
-						if (rot.getValue() > 5) {
-							break;
-						} else {
-							log("However that's not enough!");
-						}
+						this.logger.info(String.format("Best rotation was %s clearing %s pieces", rot.getKey().toString(), rot.getValue().toString()));
+						// if (rot.getValue() > 5) {
+						// 	break;
+						// } else {
+						// 	this.logger.info("However that's not enough!");
+						// }
+						break;
 					} else {
 						nextMoveWillClear = false;
-						log("No immediate point-yeilding rotation found. Prepping next pulley");
+						this.logger.info("No immediate point-yeilding rotation found. Prepping next pulley");
 					}
 				}
 				if (rot == null) {
-					log("No valid moves could be found.");
+					this.logger.info("No valid moves could be found.");
 					break;
 				}
 				boolean extraDelay = rot.getValue() + getRiggingCoilCount() >= 20;
 				int before = getRiggingStarProgress();
 				doRotation(rot.getKey(), nextMoveWillClear, extraDelay);
 				if (nextMoveWillClear && getRiggingStarProgress() < before)
-					Thread.sleep(3000); //Cleared the board
+					sleep(3000); //Cleared the board
 			}
 		} catch(InterruptedException e) {
-			log("Rigging Bot Interrupted Exception Caught");
+			this.logger.info("Rigging Bot Interrupted Exception Caught");
 		}
 		updateBotStatus("Terminated");
 	}
@@ -88,7 +92,7 @@ public class RiggingBot extends SpyglassBot implements RiggingUtils {
 		Point random = randomPointInRect(tutDismiss);
 		mouseMove(random);
 		mouseClick(MouseEvent.BUTTON1_DOWN_MASK);
-		Thread.sleep(500);
+		sleep(500);
 	}
 
 	private void doRotation(Rotation rot, boolean willClearAnything, boolean extraDelay) {
@@ -175,7 +179,7 @@ public class RiggingBot extends SpyglassBot implements RiggingUtils {
 
 	private void navigateToAxis(RiggingAxis axis, int axisIndex) {
 		if (getRiggingCursorRow() == -1 || getRiggingCursorCol() == -1) {
-			log("Something failed. Cursor not initialized.");
+			this.logger.info("Something failed. Cursor not initialized.");
 			return;
 		}
 		ArrayList<Integer> path = getCursorPath(getRiggingCursorRow(), getRiggingCursorCol(), axis, axisIndex);

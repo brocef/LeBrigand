@@ -71,7 +71,7 @@ public class App {
 
 		YoApp.main(args);//This right here is the magic. Calling the main method here will run YPP in our JVM. Fuck yeah.
 		try {
-			bridge.join();
+			bridge.join(5000);
 		} catch (InterruptedException e) {
 			//This shouldn't matter, if it even happens
 		}

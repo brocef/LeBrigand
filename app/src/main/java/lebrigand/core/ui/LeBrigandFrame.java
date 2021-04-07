@@ -75,7 +75,7 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 		setTitle("LeBrigand");
 		log = new File("lebrigand.old.log");
 		//		this.debug = dbg;
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 750, 550);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -192,16 +192,7 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 	}
 
 	public void log(String msg) {
-		String logline = msg;
-		try {
-			if (!log.exists()) log.createNewFile();
-			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(log, true)));
-			out.println(logline);
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		this.logger.info(logline);
+		this.logger.info(msg);
 	}
 
 	public void log(String format, Object...args) {
@@ -280,7 +271,6 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
 	}
 	
 	public void updateGameData(GameState state) {
-		this.logger.info("Updating Game Data");
 		updateActiveBot(bridge.getActiveBotName());
 		updateDutyReportMonitor(state.getDutyReportIsUp());
 		updateActionSprites(-1);
