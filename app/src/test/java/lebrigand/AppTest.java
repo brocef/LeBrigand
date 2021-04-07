@@ -8,7 +8,8 @@ import static org.junit.Assert.*;
 
 public class AppTest {
     @Test public void testAppHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+        String[] args = new String[0];
+        App classUnderTest = new App(args);
+        assertNotNull("App bridge not initialized", classUnderTest.bridge);
     }
 }

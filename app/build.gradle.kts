@@ -12,8 +12,7 @@ plugins {
 }
 
 repositories {
-    // Use JCenter for resolving dependencies.
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -22,6 +21,8 @@ dependencies {
 
     // This dependency is used by the application.
     implementation("com.google.guava:guava:29.0-jre")
+    implementation(fileTree("../lib/"))
+    implementation(files(System.getenv("JAVA_HOME")+"/lib/tools.jar"))
 }
 
 application {
