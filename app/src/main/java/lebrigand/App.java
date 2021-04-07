@@ -10,10 +10,10 @@ import java.util.logging.*;
 
 import lebrigand.core.Bridge;
 import lebrigand.LeLogger;
+import lebrigand.WrappedYoApp;
 
 //import com.melloware.jintellitype.JIntellitype;
 import com.sun.java.accessibility.util.EventQueueMonitor;
-import com.threerings.yohoho.client.YoApp;
 
 public class App {
 	String[] args;
@@ -69,7 +69,7 @@ public class App {
             e.printStackTrace();
 		}
 
-		YoApp.main(args);//This right here is the magic. Calling the main method here will run YPP in our JVM. Fuck yeah.
+		WrappedYoApp.main(args);//This right here is the magic. Calling the main method here will run YPP in our JVM. Fuck yeah.
 		try {
 			bridge.join(5000);
 		} catch (InterruptedException e) {

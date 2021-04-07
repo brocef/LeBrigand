@@ -139,6 +139,7 @@ public class Spyglass implements TopLevelWindowListener, GUIInitializedListener 
 			if (vm != null)
 				this.intializeGameState();
 			LeLogger.setUpLogger();
+			logger.info("Hooked into "+yppFrame.toString());
 			this.glassPane = new GlassPane(yppFrame.getContentPane());
 			yppFrame.setGlassPane(this.glassPane);
 			this.glassPane.setVisible(true);
