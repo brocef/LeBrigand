@@ -35,7 +35,7 @@ public class Spyglass implements TopLevelWindowListener, GUIInitializedListener 
 	//Game state data/hooks
 	VirtualMachine vm;
 	GameState game;
-	JFrame yppFrame;
+	public JFrame yppFrame;
 	GlassPane glassPane;
 
 	public Spyglass(Messenger msger) {

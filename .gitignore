@@ -16,6 +16,7 @@ hs_err_pid*
 
 # IDE files
 .vscode
+nbproject
 
 # macOS
 .DS_STORE
