@@ -13,16 +13,17 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 
 import lebrigand.bots.SpyglassBot;
+import lebrigand.core.spyglass.LeBrigandActuator;
 import lebrigand.core.spyglass.Spyglass;
 import lebrigand.core.ui.Messenger;
 
 public class RiggingBot extends SpyglassBot implements RiggingUtils {
 	private static Logger logger = Logger.getLogger(RiggingBot.class.getName());
 
-	public RiggingBot(Spyglass spy, JFrame yppFrame, Messenger msger) throws AWTException {
-		super(spy, yppFrame, msger);
+	public RiggingBot(Spyglass spy, LeBrigandActuator actuator) {
+		super(spy, actuator);
 	}
-
+        
 	@Override
 	public String getBotName() {
 		return "Rigging Bot";
@@ -31,7 +32,6 @@ public class RiggingBot extends SpyglassBot implements RiggingUtils {
 	@Override
 	public void run() {
 		this.logger.info("Rigging Bot Starting");
-		updateBotStatus("Running");
 
 		try {
 			while (stillAlive()) {
@@ -79,7 +79,6 @@ public class RiggingBot extends SpyglassBot implements RiggingUtils {
 		} catch(InterruptedException e) {
 			this.logger.info("Rigging Bot Interrupted Exception Caught");
 		}
-		updateBotStatus("Terminated");
 	}
 
 	private Point randomPointInRect(Rectangle r) {
@@ -116,12 +115,12 @@ public class RiggingBot extends SpyglassBot implements RiggingUtils {
 				keyPress(rot.getAxis().getBackwardKey());
 			else
 				keyPress(rot.getAxis().getForwardKey());
-			sleep(25L, 50L);
+//			sleep(25L, 50L);
 			if (back)
 				keyRelease(rot.getAxis().getBackwardKey());
 			else
 				keyRelease(rot.getAxis().getForwardKey());
-			sleep(75L, 100L);
+//			sleep(75L, 100L);
 		}
 		if (getRiggingKeyDrag()) {
 			keyPress(KeyEvent.VK_S);

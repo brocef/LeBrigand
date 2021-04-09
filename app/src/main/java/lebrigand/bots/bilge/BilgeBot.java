@@ -1,5 +1,6 @@
 package lebrigand.bots.bilge;
 
+import com.samskivert.util.Logger;
 import java.awt.AWTException;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -17,14 +18,16 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import lebrigand.bots.SpyglassBot;
+import lebrigand.core.spyglass.LeBrigandActuator;
 import lebrigand.core.spyglass.Spyglass;
 import lebrigand.core.ui.Messenger;
 
 public class BilgeBot extends SpyglassBot implements BilgeUtils, Runnable {
-	private static final String BOT_NAME = "BilgeBot";
+    private static final Logger logger = Logger.getLogger(BilgeBot.class.getName());
+    private static final String BOT_NAME = "BilgeBot";
 
-	public BilgeBot(Spyglass spy, JFrame yppFrame, Messenger msger) throws AWTException {
-		super(spy, yppFrame, msger);
+	public BilgeBot(Spyglass spy, LeBrigandActuator actuator) {
+		super(spy, actuator);
 	}
 
 	public String getBotName() {
@@ -54,8 +57,7 @@ public class BilgeBot extends SpyglassBot implements BilgeUtils, Runnable {
 	@Override
 	public void run() {
 		try {
-			log("Bilge Bot Starting");
-			updateBotStatus("Running");
+			BilgeBot.logger.info("Bilge Bot Starting");
 			while (stillAlive()) {
 				updateHooks();
 				if (dutyReportIsUp()) {
@@ -84,32 +86,28 @@ public class BilgeBot extends SpyglassBot implements BilgeUtils, Runnable {
 
 					
 					if (moves.size() == 0) {
-						log("Bilge bot exhausted of moves. Shutdown imminent.");
-						updateBotStatus("KILLED");
+						BilgeBot.logger.info("Bilge bot exhausted of moves. Shutdown imminent.");
 						break;
 					} else
 						Collections.reverse(moves); //We have to reverse since we build the list backwards
 					if (moves.size() > 1) {
-						log("Multiple moves to be executed:");
+						BilgeBot.logger.info("Multiple moves to be executed:");
 						for (Entry<Move, Integer> m:moves)
-							log(m.toString());
+							BilgeBot.logger.info(m.toString());
 					}
 					for (Entry<Move, Integer> m:moves) {
-						log("Executing move %s with score %d", m.getKey().toString(), m.getValue());
+						BilgeBot.logger.info("Executing move %s with score %d", m.getKey().toString(), m.getValue());
 						doMove(m.getKey());
 						waitUntilAnimStops();
 					}
 				} else {
-					log("Bilge board invalid or no moves possible. Shutdown imminent.");
-					updateBotStatus("KILLED");
+					BilgeBot.logger.info("Bilge board invalid or no moves possible. Shutdown imminent.");
 					break;
 				}
 			}
-			updateBotStatus("Bilge Bot Terminated");
 		} catch (InterruptedException e) {
 			//e.printStackTrace();
-			log("Bilge Bot Kill Command Received?");
-			updateBotStatus("Bilge Bot Terminated");
+			BilgeBot.logger.info("Bilge Bot Kill Command Received?");
 		}
 	}
 
@@ -363,7 +361,7 @@ public class BilgeBot extends SpyglassBot implements BilgeUtils, Runnable {
 
 		Point tl = SwingUtilities.convertPoint(getBilgeBoardView(), 0, 0, getYPPFrame().getContentPane());
 		//Point br = new Point(tl.x + game.getBilgeBoardView().getWidth(), tl.y + game.getBilgeBoardView().getHeight());
-		log("Offset is %s", tl.toString());
+		BilgeBot.logger.info("Offset is %s", tl.toString());
 		swapTiles(xyToScreenXY(tl, m.getRightX(), m.getY()), xyToScreenXY(tl, m.getLeftX(), m.getY()));
 //		swapTiles(new Point (m.getRightX(), m.getY()), new Point(m.getLeftX(), m.getY()));
 	}
@@ -372,9 +370,9 @@ public class BilgeBot extends SpyglassBot implements BilgeUtils, Runnable {
 		Random rand = new Random();
 		int x = 23 + rand.nextInt(44) + Math.min(T0.x, T1.x);
 		int y = rand.nextInt(40) + Math.min(T0.y, T1.y)+2+45;
-		log("Trying to click tiles at around (%d,%d)", x, y);
+		BilgeBot.logger.info("Trying to click tiles at around (%d,%d)", x, y);
 		mouseMove(x, y);
-		sleep(100L, 200L);
+		sleep(200L);
 //		mousePress(MouseEvent.BUTTON1_DOWN_MASK);
 //		sleep(50);
 //		mouseRelease(MouseEvent.BUTTON1_DOWN_MASK);

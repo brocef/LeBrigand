@@ -1,6 +1,5 @@
 package lebrigand.bots;
 
-import java.awt.AWTException;
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -8,18 +7,18 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPasswordField;
+import lebrigand.core.spyglass.LeBrigandActuator;
 
 import lebrigand.core.spyglass.Spyglass;
-import lebrigand.core.ui.Messenger;
 
 public abstract class SpyglassBot extends ActuatorBot {
 	//Hide all the things from bots
 	private Spyglass spy;
 	
-	public SpyglassBot(Spyglass spy, JFrame yppFrame, Messenger msger) throws AWTException {
-		super(yppFrame, msger);
+	public SpyglassBot(Spyglass spy, LeBrigandActuator actuator) {
+		super(actuator);
 		this.spy = spy;
-		updateHooks();
+		this.spy.updateGameState().setUpHooks();
 	}
 	
 	public void updateHooks() {

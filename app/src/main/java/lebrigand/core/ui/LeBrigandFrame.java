@@ -267,7 +267,7 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
     }
 
     public void updateGameData(GameState state) {
-        updateActiveBot(bridge.getActiveBotName());
+//        updateActiveBot(bridge.getActiveBotName());
         updateDutyReportMonitor(state.getDutyReportIsUp());
         updateActionSprites(-1);
         updateActionAnims(state.getRiggingActionAnims());

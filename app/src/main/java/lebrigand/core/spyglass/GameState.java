@@ -813,7 +813,7 @@ public class GameState {
 	}
 
 	public GameState updateGameState() {
-		spy.broadcastGameState(this);
+//		spy.broadcastGameState(this);
 		return this;
 	}
 }

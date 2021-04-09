@@ -11,13 +11,14 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import lebrigand.bots.SpyglassBot;
+import lebrigand.core.spyglass.LeBrigandActuator;
 import lebrigand.core.spyglass.Spyglass;
 import lebrigand.core.ui.Messenger;
 
 public class TestBot extends SpyglassBot {
 
-	public TestBot(Spyglass spy, JFrame yppFrame, Messenger msger) throws AWTException {
-		super(spy, yppFrame, msger);
+	public TestBot(Spyglass spy, LeBrigandActuator actuator) {
+		super(spy, actuator);
 	}
 
 	@Override

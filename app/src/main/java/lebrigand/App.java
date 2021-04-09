@@ -1,7 +1,6 @@
 package lebrigand;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.*;
@@ -13,6 +12,7 @@ import com.sun.java.accessibility.util.EventQueueMonitor;
 
 public class App {
 
+    public static final String VERSION = "1.0.0";
     String[] args;
     Bridge bridge;
 
@@ -24,10 +24,6 @@ public class App {
 
     public App(String[] args) {
         bridge = new Bridge();
-
-        EventQueueMonitor.addTopLevelWindowListener(bridge.getSpyglass());
-        EventQueueMonitor.addGUIInitializedListener(bridge.getSpyglass());
-
         this.args = args;
     }
 

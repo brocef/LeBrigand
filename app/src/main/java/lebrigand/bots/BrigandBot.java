@@ -1,44 +1,43 @@
 package lebrigand.bots;
 
-import lebrigand.core.ui.Messenger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public abstract class BrigandBot extends Thread implements Messenger {
-	private boolean kill;
-	private Messenger msger;
-	
-	public BrigandBot(Messenger msger) {
-		this.setName(getBotName());
-		this.setDaemon(true);
-		this.kill = false;
-		this.msger = msger;
-	}
-	
-	public abstract String getBotName();
-	
-	public abstract void run();
-	
-	public void killBot() {
-		this.kill = true;
-//		this.interrupt();
-	}
-	
-	public boolean stillAlive() {
-		return !this.kill;
-	}
-	
-	public void updateBotStatus(String status) {
-		msger.updateBotStatus(status);
-	}
-	
-	public void log(String msg) {
-		msger.log(msg);
-	}
-	
-	public void log(String format, Object...args) {
-		msger.log(format, args);
-	}
-	
-	public void log(Object o) {
-		msger.log(o);
-	}
+public abstract class BrigandBot implements Runnable {
+
+    private static final Logger logger = Logger.getLogger(BrigandBot.class.getName());
+
+    private final Object killMutex;
+    private boolean kill;
+
+    public BrigandBot() {
+        this.kill = false;
+        this.killMutex = new Object();
+    }
+
+    public abstract String getBotName();
+
+    @Override
+    public abstract void run();
+
+    public void killBot() {
+        synchronized (this.killMutex) {
+            this.kill = true;
+        }
+    }
+
+    public boolean stillAlive() {
+        synchronized (this.killMutex) {
+            return !this.kill;
+        }
+    }
+
+    public void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ex) {
+            BrigandBot.logger.log(Level.WARNING, null, ex);
+            this.killBot();
+        }
+    }
 }

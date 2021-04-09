@@ -20,6 +20,4 @@ public interface Actuator {
 	public void keyType(int keycode, char c);
 	
 	public void keyType(int keycode);
-	
-	public void sleep(int millis);
 }
