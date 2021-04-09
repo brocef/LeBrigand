@@ -20,9 +20,9 @@ public class BindingManager {
     protected final BindingManager self;
     protected final Field selfField;
     // Map "class_name" -> Set<"field_name">
-    protected final Map<String, Set<String>> classFieldMap;
+    public final Map<String, Set<String>> classFieldMap;
     // Map "value_class_name" -> List<Derivative>
-    protected final Map<String, Set<Derivative>> derivativesMap;
+    public final Map<String, Set<Derivative>> derivativesMap;
 
     private final String[] classPrefixes;
 
