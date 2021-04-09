@@ -78,36 +78,8 @@ public class GameState {
 
 	private Spyglass spy;
 
-	private VirtualMachine vm;
-
-	//	//OTHER VARS
-	//	private JFrame yppFrame;
-	//	private JButton logonButton;
-	//	private JTextField logonNameField;
-	//	private JPasswordField logonPassField;
-	//
-	//	//GENERIC PUZZLE VARS
-	//	//	private JPanel dutyReportView;
-	//	private IntegerHook dutyReportViewWidthHook, dutyReportViewHeightHook;	private int dutyReportViewWidth, dutyReportViewHeight;
-	//	private BooleanHook isAddNotifyCompleteHook;							private boolean dutyReportViewIsUp, isAddNotifyComplete;
-	//	private IntegerHook bilgeActionAnimsHook, bilgeActionSpritesHook;		private int bilgeActionAnims, bilgeActionSprites;
-	//	private ObjectRefHook playingPanelHook;									private String activePlayingPanel, activePlayingPanelShort;
-	//
-	//	//BILGING VARS
-	//	private JComponent bilgeBoardView;
-	//	private boolean bilgeBoardIsActive;
-	//	private boolean bilgeBoardIsAnimating;
-	//
-	//	private IntArrayHook bilgeBoardHook;			private int[] bilgeBoard;
-	//	private IntegerHook waterLevelHook;				private int waterLevel;
-	//
-	//	//RIGGING VARS
-	//	private boolean riggingBoardIsActive;
-	//	private ArrayHook riggingBoardHook;							private int[][] riggingBoard;
-	//	private IntegerHook riggingCurRowHook, riggingCurColHook;	private int riggingCurRow, riggingCurCol;
-	//	private IntegerHook riggingPulleyHook;						private int riggingPulley;
-
 	private HashMap<String, Hook> hookMap;
+        VirtualMachine vm = null;
 
 	//OTHER VARS
 	private JFrame yppFrame;
@@ -167,9 +139,8 @@ public class GameState {
 	private IntegerHook dutyPerformanceTicksHook;
 	private IntegerHook dutyPerformanceBucketsHook;
 
-	public GameState(Spyglass spy, JFrame yppFrame, VirtualMachine vm) {
+	public GameState(Spyglass spy, JFrame yppFrame) {
 		this.yppFrame = yppFrame;
-		this.vm = vm;
 		this.spy = spy;
 
 		hookMap = new HashMap<String, Hook>();

@@ -20,13 +20,12 @@ import com.samskivert.util.Logger;
 import javax.swing.RootPaneContainer;
 // import org.apache.commons.io.c;
 import com.threerings.yohoho.client.YoApp;
-import com.threerings.yohoho.client.YoFrame;
 import com.threerings.yohoho.client.aE;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
-import javax.swing.JFrame;
 import com.threerings.yohoho.client.YoFrame;
+import java.lang.reflect.InvocationTargetException;
 
 public class WrappedYoApp extends YoApp implements Runnable {
 
@@ -43,24 +42,20 @@ public class WrappedYoApp extends YoApp implements Runnable {
             }
             yoapp_d.setAccessible(true);
             return (YoFrame) yoapp_d.get(this.singleton);
-        } catch (IllegalArgumentException ex) {
-            java.util.logging.Logger.getLogger(WrappedYoApp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException ex) {
             java.util.logging.Logger.getLogger(WrappedYoApp.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
-    
+
     public static void main(String[] paramArrayOfString) {
         String str = "";
-        String arrayOfString[] = paramArrayOfString;
         Logger logger = Logger.getLogger("yohoho");
         WrappedYoApp yoApp = new WrappedYoApp();
         singleton = yoApp;
         try {
             ManagedJFrame managedJFrame;
             String str1 = str;
-            arrayOfString = null;
             WrappedYoApp yoApp1 = yoApp;
             if (!SteamAPI.init()) {
                 logger.info("Did not initialize Steam", new Object[0]);
@@ -76,12 +71,12 @@ public class WrappedYoApp extends YoApp implements Runnable {
             }
             logger.info("DPI Aware: " + System.getProperty("sun.java2d.dpiaware"), new Object[0]);
             YoLookAndFeel.a(yoApp1.getClass().getClassLoader());
-            managedJFrame = managedJFrame = new ManagedJFrame();
+            managedJFrame = new ManagedJFrame();
             yoApp1.b = new YoFrame((RootPaneContainer) managedJFrame);
             yoApp1.c = h.a(yoApp1.b);
             Field yoapp_d = null; //YoApp.class.getField("d");
             for (Field f : YoApp.class.getDeclaredFields()) {
-                if (f.getName() == "d") {
+                if ("d".equals(f.getName())) {
                     yoapp_d = f;
                     break;
                 }
@@ -93,7 +88,7 @@ public class WrappedYoApp extends YoApp implements Runnable {
             Method yoapp_c = null;
             for (Method m : yoapp_methods) {
                 logger.info("Found method " + m.getName());
-                if (m.getName() == "c") {
+                if ("c".equals(m.getName())) {
                     yoapp_c = m;
                     break;
                 }
@@ -101,9 +96,9 @@ public class WrappedYoApp extends YoApp implements Runnable {
             yoapp_c.setAccessible(true);
             yoapp_c.invoke(yoApp1);
             //   YoApp.c();
-        } catch (Exception iOException) {
-            logger.warning("Error initializing application.", new Object[]{iOException});
+            EventQueue.invokeLater(yoApp);
+        } catch (IllegalAccessException | IllegalArgumentException | SecurityException | InvocationTargetException ex) {
+            logger.warning("Error initializing application.", new Object[]{ex});
         }
-        EventQueue.invokeLater(yoApp);
     }
 }

@@ -1,32 +1,23 @@
 package lebrigand.core;
 
-import com.google.common.collect.Lists;
 import java.awt.AWTException;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import javax.swing.JFrame;
 
-import lebrigand.LeLogger;
 import lebrigand.bots.SpyglassBot;
 import lebrigand.bots.bilge.BilgeBot;
 import lebrigand.bots.rigging.RiggingBot;
-import lebrigand.bots.testing.TestBot;
 import lebrigand.core.spyglass.Spyglass;
 import lebrigand.core.spyglass.VMInitializationFailure;
 import lebrigand.core.ui.LeBrigandFrame;
 import lebrigand.WrappedYoApp;
 import com.threerings.yohoho.client.YoFrame;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import lebrigand.core.spyglass.BindingManager;
 import lebrigand.core.spyglass.ComponentManager;
 
@@ -35,7 +26,7 @@ import lebrigand.core.spyglass.ComponentManager;
 //import com.melloware.jintellitype.JIntellitype;
 public class Bridge implements ActionListener {
 
-    private static Logger logger = Logger.getLogger(Bridge.class.getName());
+    private static final Logger logger = Logger.getLogger(Bridge.class.getName());
 
     //UI Stuff
     LeBrigandFrame df;
@@ -71,9 +62,7 @@ public class Bridge implements ActionListener {
     }
 
     public void start() {
-        this.logger.info("Starting bridge");
-        this.logger.warning("Starting bridge");
-        this.logger.severe("Starting bridge");
+        Bridge.logger.info("Starting bridge");
         df.setVisible(true);
 
         //		try {
@@ -127,15 +116,6 @@ public class Bridge implements ActionListener {
     public void actionPerformed(ActionEvent a) {
         this.logger.info("ActionPerformed: " + a.toString());
         if (a.getActionCommand().equals(LeBrigandFrame.AC_INIT_VM)) {
-            this.logger.info("Initializing VM");
-            try {
-                if (!spy.isSpyglassReady()) {
-                    spy.initializeSpyglass();
-                }
-            } catch (VMInitializationFailure e) {
-                this.logger.log(Level.SEVERE, "Fatal Error: VM Failed to initialize!");
-                this.logger.log(Level.SEVERE, e.getMessage(), e);
-            }
         } else if (a.getActionCommand().equals(LeBrigandFrame.AC_START_BILGE_BOT)) {
             try {
                 if (currentBot != null && currentBot.isAlive()) {

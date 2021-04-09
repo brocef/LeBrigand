@@ -44,7 +44,6 @@ public class App {
 			System.exit(1);
 		}*/
         App.logger.info("Starting LeBrigand");
-        App.logger.info(App.class.getName());
         App c = new App(args);
         c.run(); //Not actually a new thread, just a convenient name for an instance main method
     }
