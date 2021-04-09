@@ -1,40 +1,38 @@
 package lebrigand;
 
-import java.awt.KeyboardFocusManager;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.*;
 
 import lebrigand.core.Bridge;
-import lebrigand.LeLogger;
-import lebrigand.WrappedYoApp;
 
 //import com.melloware.jintellitype.JIntellitype;
 import com.sun.java.accessibility.util.EventQueueMonitor;
 
 public class App {
-	String[] args;
-	Bridge bridge;
 
-	private static Logger logger = Logger.getLogger(App.class.getName());
-	static {
-		LeLogger.setUpLogger();
-	}
+    String[] args;
+    Bridge bridge;
 
-	public App(String[] args) {
-		bridge = new Bridge();
+    private static final Logger logger = Logger.getLogger(App.class.getName());
 
-		EventQueueMonitor.addTopLevelWindowListener(bridge.getSpyglass());
-		EventQueueMonitor.addGUIInitializedListener(bridge.getSpyglass());
+    static {
+        LeLogger.setUpLogger();
+    }
 
-		this.args = args;
-	}
+    public App(String[] args) {
+        bridge = new Bridge();
 
-	public static void main(String[] args) {
-		//This is returning the wrong value for some reason. Not sure why.
+        EventQueueMonitor.addTopLevelWindowListener(bridge.getSpyglass());
+        EventQueueMonitor.addGUIInitializedListener(bridge.getSpyglass());
+
+        this.args = args;
+    }
+
+    public static void main(String[] args) {
+        //This is returning the wrong value for some reason. Not sure why.
 //		if (JIntellitype.checkInstanceAlreadyRunning("YPP Debugger")) {
 //			System.err.println("Instance already running");
 //			System.exit(1);
@@ -45,16 +43,16 @@ public class App {
 			System.err.println("Intellitype not supported");
 			System.exit(1);
 		}*/
-		App.logger.info("Starting LeBrigand");
-		App.logger.info(App.class.getName());
-		App c = new App(args);
-		c.run(); //Not actually a new thread, just a convenient name for an instance main method
-	}
+        App.logger.info("Starting LeBrigand");
+        App.logger.info(App.class.getName());
+        App c = new App(args);
+        c.run(); //Not actually a new thread, just a convenient name for an instance main method
+    }
 
-	public void run() {
-		bridge.start();
-		
-		Properties p = new Properties();
+    public void run() {
+        bridge.start();
+
+        Properties p = new Properties();
         FileInputStream in;
         try {
             in = new FileInputStream("../jvm.prop");
@@ -63,17 +61,10 @@ public class App {
                 System.setProperty(s, p.getProperty(s));
             }
             in.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-		}
+        }
 
-		WrappedYoApp.main(args);//This right here is the magic. Calling the main method here will run YPP in our JVM. Fuck yeah.
-		try {
-			bridge.join(5000);
-		} catch (InterruptedException e) {
-			//This shouldn't matter, if it even happens
-		}
-	}
+        WrappedYoApp.main(args);
+    }
 }

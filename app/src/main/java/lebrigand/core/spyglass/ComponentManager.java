@@ -24,11 +24,11 @@ public class ComponentManager {
 
     private List<WeakReference<Component>> findComponents(String componentClassName, Container container, List<WeakReference<Component>> comps) {
         for (Component comp : container.getComponents()) {
-            if (comp.getClass().getName().equals(componentClassName)) {
+            if (comp.getClass().getName().equals(componentClassName) || componentClassName == null) {
                 comps.add(new WeakReference(comp));
             }
-            if (comp instanceof Container) {
-                return this.findComponents(componentClassName, (Container) comp, comps);
+            if (Container.class.isInstance(comp)) {
+                this.findComponents(componentClassName, (Container) comp, comps);
             }
         }
         return comps;

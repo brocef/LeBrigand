@@ -22,15 +22,18 @@ import lebrigand.core.spyglass.VMInitializationFailure;
 import lebrigand.core.ui.LeBrigandFrame;
 import lebrigand.WrappedYoApp;
 import com.threerings.yohoho.client.YoFrame;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import lebrigand.core.spyglass.BindingManager;
+import lebrigand.core.spyglass.ComponentManager;
 
 //import com.melloware.jintellitype.HotkeyListener;
 //import com.melloware.jintellitype.IntellitypeListener;
 //import com.melloware.jintellitype.JIntellitype;
-public class Bridge extends Thread implements ActionListener {
+public class Bridge implements ActionListener {
 
     private static Logger logger = Logger.getLogger(Bridge.class.getName());
 
@@ -67,8 +70,10 @@ public class Bridge extends Thread implements ActionListener {
         return currentBot == null ? "None" : currentBot.getBotName();
     }
 
-    public void run() {
+    public void start() {
         this.logger.info("Starting bridge");
+        this.logger.warning("Starting bridge");
+        this.logger.severe("Starting bridge");
         df.setVisible(true);
 
         //		try {
@@ -145,17 +150,11 @@ public class Bridge extends Thread implements ActionListener {
         } else if (a.getActionCommand().equals(LeBrigandFrame.AC_INPUT)) {
             WrappedYoApp app = WrappedYoApp.singleton;
             JFrame frame = spy.yppFrame;
-            ArrayList<Component> compsToProcess = new ArrayList<Component>();
-            Set<String> allCompClasses = new HashSet<>();
-            compsToProcess.add(frame);
-            while (!compsToProcess.isEmpty()) {
-                Component c = compsToProcess.remove(0);
-                allCompClasses.add(c.getClass().getName());
-                if (Container.class.isInstance(c)) {
-                    Container cont = (Container) c;
-                    compsToProcess.addAll(Arrays.asList(cont.getComponents()));
-                }
-                Bridge.logger.info(c.toString());
+            ComponentManager compMgr = new ComponentManager();
+            compMgr.setRoot(frame);
+            List<WeakReference<Component>> allComps = compMgr.findComponents(null);
+            for (WeakReference<Component> c: allComps) {
+                Bridge.logger.info(c.get().toString());
             }
 
             YoFrame yoframe = app.getYoFrame();
