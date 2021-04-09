@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package lebrigand.core.spyglass;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 public class ObjectFieldPair {
+
     private final WeakReference<Object> obj;
     private final Field f;
 
@@ -18,10 +18,15 @@ public class ObjectFieldPair {
         this.f = f;
     }
 
+    protected WeakReference<Object> getWeakObjectReference() {
+        return this.obj;
+    }
+
     public Object getObject() throws ObjectExpiredException {
         Object o = this.obj.get();
-        if (o == null)
+        if (o == null) {
             throw new ObjectExpiredException();
+        }
         return o;
     }
 
