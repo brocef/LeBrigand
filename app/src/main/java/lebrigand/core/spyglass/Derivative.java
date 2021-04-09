@@ -44,7 +44,7 @@ public class Derivative {
             return false;
         } else {
             Derivative other = (Derivative) o;
-            return this.asKey() == null ? other.asKey() == null : this.asKey().equals(other.asKey());
+            return this.asKey().equals(other.asKey());
         }
     }
 

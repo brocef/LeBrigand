@@ -17,6 +17,10 @@ public class ObjectFieldPair {
         this.obj = new WeakReference<>(obj);
         this.f = f;
     }
+    
+    public ObjectFieldPair(Object obj, String fieldName) throws NoSuchFieldException {
+        this(obj, Utils.getField(obj.getClass(), fieldName));
+    }
 
     protected WeakReference<Object> getWeakObjectReference() {
         return this.obj;

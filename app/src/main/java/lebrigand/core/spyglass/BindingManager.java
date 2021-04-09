@@ -20,9 +20,10 @@ public class BindingManager {
     protected final BindingManager self;
     protected final Field selfField;
     // Map "class_name" -> Set<"field_name">
-    public final Map<String, Set<String>> classFieldMap;
+    protected final Map<String, Set<String>> classFieldMap;
     // Map "value_class_name" -> List<Derivative>
-    public final Map<String, Set<Derivative>> derivativesMap;
+    protected final Map<String, Set<Derivative>> derivativesMap;
+    protected final ObjectCache cache;
 
     private final String[] classPrefixes;
 
@@ -31,6 +32,7 @@ public class BindingManager {
             this.rootObj = null;
             this.classFieldMap = new HashMap<>();
             this.derivativesMap = new HashMap<>();
+            this.cache = new ObjectCache();
             this.classPrefixes = classPrefixes;
             this.rootObjField = BindingManager.class.getDeclaredField("rootObj");
             this.self = this;
@@ -44,6 +46,17 @@ public class BindingManager {
 
     public BindingManager() {
         this(new String[0]);
+    }
+
+    private Set<String> getClassFields(String className) {
+        Set<String> fieldNameSet;
+        if (!this.classFieldMap.containsKey(className)) {
+            fieldNameSet = new HashSet<>();
+            this.classFieldMap.put(className, fieldNameSet);
+        } else {
+            fieldNameSet = this.classFieldMap.get(className);
+        }
+        return fieldNameSet;
     }
 
     private void createSelfBindings() {
@@ -76,9 +89,9 @@ public class BindingManager {
 
     public int getInt(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
         try {
-            ObjectFieldPair objfield = this.getDerivative(className, ignoredHashCodes).getAsObjectFieldPair(fieldName);
+            ObjectFieldPair objfield = this.deriveObjectFieldPair(className, fieldName, ignoredHashCodes);
             return objfield.getInt();
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException | TooManyResultsException ex) {
             Logger.getLogger(BindingManager.class.getName()).log(Level.WARNING, null, ex);
         }
         throw new ValueDerivationFailedError();
@@ -90,9 +103,9 @@ public class BindingManager {
 
     public char getChar(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
         try {
-            ObjectFieldPair objfield = this.getDerivative(className, ignoredHashCodes).getAsObjectFieldPair(fieldName);
+            ObjectFieldPair objfield = this.deriveObjectFieldPair(className, fieldName, ignoredHashCodes);
             return objfield.getChar();
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException | TooManyResultsException ex) {
             Logger.getLogger(BindingManager.class.getName()).log(Level.WARNING, null, ex);
         }
         throw new ValueDerivationFailedError();
@@ -104,9 +117,9 @@ public class BindingManager {
 
     public byte getByte(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
         try {
-            ObjectFieldPair objfield = this.getDerivative(className, ignoredHashCodes).getAsObjectFieldPair(fieldName);
+            ObjectFieldPair objfield = this.deriveObjectFieldPair(className, fieldName, ignoredHashCodes);
             return objfield.getByte();
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException | TooManyResultsException ex) {
             Logger.getLogger(BindingManager.class.getName()).log(Level.WARNING, null, ex);
         }
         throw new ValueDerivationFailedError();
@@ -118,9 +131,9 @@ public class BindingManager {
 
     public short getShort(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
         try {
-            ObjectFieldPair objfield = this.getDerivative(className, ignoredHashCodes).getAsObjectFieldPair(fieldName);
+            ObjectFieldPair objfield = this.deriveObjectFieldPair(className, fieldName, ignoredHashCodes);
             return objfield.getShort();
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException | TooManyResultsException ex) {
             Logger.getLogger(BindingManager.class.getName()).log(Level.WARNING, null, ex);
         }
         throw new ValueDerivationFailedError();
@@ -132,9 +145,9 @@ public class BindingManager {
 
     public long getLong(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
         try {
-            ObjectFieldPair objfield = this.getDerivative(className, ignoredHashCodes).getAsObjectFieldPair(fieldName);
+            ObjectFieldPair objfield = this.deriveObjectFieldPair(className, fieldName, ignoredHashCodes);
             return objfield.getLong();
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException | TooManyResultsException ex) {
             Logger.getLogger(BindingManager.class.getName()).log(Level.WARNING, null, ex);
         }
         throw new ValueDerivationFailedError();
@@ -146,9 +159,9 @@ public class BindingManager {
 
     public float getFloat(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
         try {
-            ObjectFieldPair objfield = this.getDerivative(className, ignoredHashCodes).getAsObjectFieldPair(fieldName);
+            ObjectFieldPair objfield = this.deriveObjectFieldPair(className, fieldName, ignoredHashCodes);
             return objfield.getFloat();
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException | TooManyResultsException ex) {
             Logger.getLogger(BindingManager.class.getName()).log(Level.WARNING, null, ex);
         }
         throw new ValueDerivationFailedError();
@@ -160,9 +173,9 @@ public class BindingManager {
 
     public double getDouble(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
         try {
-            ObjectFieldPair objfield = this.getDerivative(className, ignoredHashCodes).getAsObjectFieldPair(fieldName);
+            ObjectFieldPair objfield = this.deriveObjectFieldPair(className, fieldName, ignoredHashCodes);
             return objfield.getDouble();
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException | TooManyResultsException ex) {
             Logger.getLogger(BindingManager.class.getName()).log(Level.WARNING, null, ex);
         }
         throw new ValueDerivationFailedError();
@@ -174,9 +187,9 @@ public class BindingManager {
 
     public boolean getBoolean(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
         try {
-            ObjectFieldPair objfield = this.getDerivative(className, ignoredHashCodes).getAsObjectFieldPair(fieldName);
+            ObjectFieldPair objfield = this.deriveObjectFieldPair(className, fieldName, ignoredHashCodes);
             return objfield.getBoolean();
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException | TooManyResultsException ex) {
             Logger.getLogger(BindingManager.class.getName()).log(Level.WARNING, null, ex);
         }
         throw new ValueDerivationFailedError();
@@ -188,35 +201,45 @@ public class BindingManager {
 
     public Object getObject(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
         try {
-            ObjectFieldPair objfield = this.getDerivative(className, ignoredHashCodes).getAsObjectFieldPair(fieldName);
+            ObjectFieldPair objfield = this.deriveObjectFieldPair(className, fieldName, ignoredHashCodes);
             return objfield.get();
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | ObjectExpiredException | TooManyResultsException ex) {
             Logger.getLogger(BindingManager.class.getName()).log(Level.WARNING, null, ex);
         }
         throw new ValueDerivationFailedError();
     }
 
-    protected ObjectFieldPair getDerivative(String className) throws ValueDerivationFailedError {
-        return this.getDerivative(className, true);
-    }
-
-    protected ObjectFieldPair getDerivative(String className, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
+    protected ObjectFieldPair deriveObjectFieldPair(String className, String fieldName, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError, TooManyResultsException, NoSuchFieldException {
         ignoredHashCodes = new HashSet<>(ignoredHashCodes);
         ignoredHashCodes.add(0); // Always ignore null
-        return this.getDerivative(className, true, ignoredHashCodes);
+        Object targetObj = this.deriveObject(className, true, ignoredHashCodes);
+        return new ObjectFieldPair(targetObj, fieldName);
     }
-
-    private ObjectFieldPair getDerivative(String className, boolean rebuildMappingsIfFailed) throws ValueDerivationFailedError {
-        return this.getDerivative(className, rebuildMappingsIfFailed, BindingManager.createDefaultHashSet());
-    }
-
-    private ObjectFieldPair getDerivative(String className, boolean rebuildMappingsIfFailed, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError {
+    
+    protected Object deriveObject(String className, boolean rebuildMappingsIfFailed, Set<Integer> ignoredHashCodes) throws ValueDerivationFailedError, TooManyResultsException {
         /**
          * Get the ObjectFieldPair that, when evaluated, will yield an Object of
          * class `className`.
          */
-        BindingManager.log.log(Level.FINE, "Attempting to get derivative for {0}", className);
-        // The null hash code is always ignored
+        BindingManager.log.log(Level.FINE, "Attempting to derive for {0}", className);
+
+        try {
+            // If the object is in the cache and not expired, return it
+            CachedObject cachedObj = this.cache.getCachedObject(className, ignoredHashCodes);
+            // A null CachedObject represents a cache miss
+            if (cachedObj != null) {
+                return cachedObj.getObject();
+            }
+        } catch (TooManyResultsException ex) {
+            // There were too many results, this is problematic as we can't know which one to use
+            Logger.getLogger(BindingManager.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        } catch (CachedObjectExpiredException ex) {
+            // Somehow the object expired but made it into the result set, attempt to re-derive
+            // the object
+            BindingManager.log.log(Level.FINE, ex.getMessage(), ex);
+        }
+
         if (!this.derivativesMap.containsKey(className)) {
             // Target class not yet mapped, let's hope we find it now
             this.buildMappings();
@@ -227,43 +250,62 @@ public class BindingManager {
         }
 
         for (Derivative d : derivs) {
+            // Each Derivative descirbes a way to acquire an object of class className
             BindingManager.log.log(Level.FINE, "Trying {0}", d);
-            // For each derivative that will yield a className object, try to resolve one of them
 
-            try {
-                ObjectFieldPair ownerDerivativePair;
-                if (d.getClassName().equals(className)) {
-                    // The target class derives itself, this is the case for the BindingManager object
-                    if (className.equals(BindingManager.class.getName())) {
-                        ownerDerivativePair = new ObjectFieldPair(this, this.selfField);
-                    } else {
-                        // This is a very bizarre case, hopefully there's another derivative to check
-                        throw new ValueDerivationFailedError();
-                    }
+            ObjectFieldPair ownerDerivativePair;
+            Object owner;
+
+            if (d.getClassName().equals(className)) {
+                // The target class derives itself, this is the case for the BindingManager object
+                if (className.equals(BindingManager.class.getName())) {
+                    owner = this;
                 } else {
-                    ownerDerivativePair = this.getDerivative(d.getClassName(), ignoredHashCodes);
+                    // This is a very bizarre case, hopefully there's another derivative to check
+                    throw new RuntimeException(String.format("deriveObject base-case failed, %s, %s", className, d.getClassName()));
                 }
-                Object targetOwner = ownerDerivativePair.getField().get(ownerDerivativePair.getObject());
-                Field targetField = Utils.getField(targetOwner.getClass(), d.getFieldName());
-                // And just before we actually return this new pair, make sure that isn't in the ignore list
-                ObjectFieldPair targetPair = new ObjectFieldPair(targetOwner, targetField);
-                Object targetObject = targetPair.get();
-                if (ignoredHashCodes.contains(System.identityHashCode(targetObject))) {
+            } else {
+                // When trying to derive the owner, allow the owner to also rebuild mappings if failed
+                try {
+                    owner = this.deriveObject(d.getClassName(), true, ignoredHashCodes);
+                } catch (ValueDerivationFailedError ex) {
+                    // Failed to derive this owner, just try next possible derivation
                     continue;
                 }
-                return targetPair;
-            } catch (ValueDerivationFailedError | IllegalArgumentException | IllegalAccessException | ObjectExpiredException ex) {
-                log.log(Level.FINE, String.format("Failed to use %s, trying next one if possible", d), ex);
+            }
+            try {
+                ownerDerivativePair = new ObjectFieldPair(owner, d.getFieldName());
             } catch (NoSuchFieldException ex) {
-                log.log(Level.SEVERE, "NoSuchFieldException when evaluating derivative", ex);
+                Logger.getLogger(BindingManager.class.getName()).log(Level.FINE, null, ex);
+                continue;
+            }
+
+            Object candidateObj;
+            try {
+                candidateObj = ownerDerivativePair.get();
+            } catch (IllegalArgumentException | IllegalAccessException ex) {
+                Logger.getLogger(BindingManager.class.getName()).log(Level.SEVERE, null, ex);
+                throw new ValueDerivationFailedError();
+            } catch (ObjectExpiredException ex) {
+                Logger.getLogger(BindingManager.class.getName()).log(Level.SEVERE, null, ex);
+                continue;
+            }
+            
+            // Not caching null
+            if (candidateObj != null) {
+                CachedObject cachedCandidate = this.cache.addToCache(candidateObj);
+                if (!ignoredHashCodes.contains(cachedCandidate.getId()))
+                    return candidateObj;
             }
         }
+
+        // We got an object, but we have to make sure it's not in the ignore set
         if (rebuildMappingsIfFailed) {
             this.buildMappings();
-            return this.getDerivative(className, false, ignoredHashCodes);
-        } else {
-            throw new ValueDerivationFailedError();
+            return this.deriveObject(className, false, ignoredHashCodes);
         }
+        
+        throw new ValueDerivationFailedError();
     }
 
     public void buildMappings() {
@@ -271,12 +313,12 @@ public class BindingManager {
     }
 
     private void buildMappings(Object o, Object owner, Field derivationField, Set<Integer> seenHashes) {
-        seenHashes.add(System.identityHashCode(o));
+        CachedObject obj = this.cache.addToCache(o);
+        seenHashes.add(obj.getId());
         Class ownerClass = owner.getClass();
-        Class c = o.getClass();
 
         String ownerTypeName = ownerClass.getName();
-        String objectTypeName = c.getName();
+        String objectTypeName = obj.getClassName();
 
         Derivative d = new Derivative(ownerTypeName, derivationField);
         Set<Derivative> derivs;
@@ -290,16 +332,10 @@ public class BindingManager {
             log.log(Level.FINE, "Added a Derivative for type {0}: {1}", new Object[]{objectTypeName, d});
         }
 
-        log.log(Level.FINE, "Inspecting object of type {0}", c.getName());
-        Set<String> fieldNames;
-        if (!this.classFieldMap.containsKey(c.getName())) {
-            fieldNames = new HashSet<>();
-            this.classFieldMap.put(c.getName(), fieldNames);
-        } else {
-            fieldNames = this.classFieldMap.get(c.getName());
-        }
+        log.log(Level.FINE, "Inspecting object of type {0}", objectTypeName);
+        Set<String> fieldNames = this.getClassFields(objectTypeName);
 
-        Set<Field> fields = this.getAllFields(c);
+        Set<Field> fields = this.getAllFields(o.getClass());
 
         log.log(Level.FINE, "{0} has {1} fields: {2}", new Object[]{objectTypeName, fields.size(), fields.toString()});
 

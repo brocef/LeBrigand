@@ -12,13 +12,13 @@ import static org.junit.Assert.*;
 class BindingTestObject {
 
     boolean bool = false;
-    byte b = 1;
-    char c = 'a';
-    short s = 2;
-    int i = 3;
-    long l = 4l;
-    float f = 1.5f;
-    double d = 2.5d;
+    byte b = 123;
+    char c = '=';
+    short s = 22222;
+    int i = -1;
+    long l = 44444l;
+    float f = 1.523f;
+    double d = 2.523d;
     BindingTestObject o = null;
     BindingTestObject o2 = null;
 
@@ -159,20 +159,21 @@ public class BindingManagerTest {
     }
 
     @Test
-    public void testHandleObjectExpiration() throws ValueDerivationFailedError, IllegalArgumentException, IllegalAccessException, ObjectExpiredException {
+    public void testHandleObjectExpiration() throws ValueDerivationFailedError, IllegalArgumentException, IllegalAccessException, ObjectExpiredException, TooManyResultsException, CachedObjectExpiredException {
         System.out.println("testHandleObjectExpiration");
         BindingManager instance = new BindingManager();
         BindingTestObject root = new BindingTestObject();
         BindingTestObject3 child_2 = new BindingTestObject3();
         root.o = new BindingTestObject2();
+        root.o.i = 4;
         root.o.o2 = child_2;
         child_2.i = 8;
 
         instance.setRootObject(root);
 
         assertEquals(8, instance.getInt(child_2.getClass().getName(), "i"));
-        ObjectFieldPair child_2_owner = instance.getDerivative(child_2.getClass().getName());
-        assertEquals(child_2, child_2_owner.get());
+//        ObjectFieldPair child_2_owner = instance.getDerivative(child_2.getClass().getName());
+        CachedObject child_2_owner = instance.cache.getCachedObject(BindingTestObject2.class.getName());
         assertEquals(root.o, child_2_owner.getObject());
 
         // Remove refs to child_1 and then force garbage collection
@@ -182,15 +183,28 @@ public class BindingManagerTest {
         try {
             child_2_owner.getObject();
             fail("Expected child_1 to have expired");
-        } catch (ObjectExpiredException ex) {
+        } catch (CachedObjectExpiredException ex) {
         }
+        
+        // Can still get values from child_2 since it is cached
+        assertEquals(8, instance.getInt(child_2.getClass().getName(), "i"));
+        
+        // But cannot get values from child_1 since it's gone
+        try {
+            instance.getInt(BindingTestObject2.class.getName(), "i");
+            fail("Should not have been able to get the value of a gc'd object");
+        } catch (ValueDerivationFailedError ex) {}
+        
+        // Now clear the cache and try to get child_2 again, should fail
+        instance.cache.clear();
+        try {
+            instance.getInt(child_2.getClass().getName(), "i");
+            fail("Should not have been able to get the value of an inaccessible");
+        } catch (ValueDerivationFailedError ex) {}
 
         root.o2 = child_2;
         // Now make child_2 owned by root, we should be able to get the right derivative
         assertEquals(8, instance.getInt(child_2.getClass().getName(), "i"));
-        ObjectFieldPair new_child_2_owner = instance.getDerivative(child_2.getClass().getName());
-        assertEquals(child_2, new_child_2_owner.get());
-        assertEquals(root, new_child_2_owner.getObject());
     }
 
     @Test

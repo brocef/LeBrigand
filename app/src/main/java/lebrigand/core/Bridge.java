@@ -12,14 +12,13 @@ import lebrigand.bots.SpyglassBot;
 import lebrigand.bots.bilge.BilgeBot;
 import lebrigand.bots.rigging.RiggingBot;
 import lebrigand.core.spyglass.Spyglass;
-import lebrigand.core.spyglass.VMInitializationFailure;
 import lebrigand.core.ui.LeBrigandFrame;
 import lebrigand.WrappedYoApp;
 import com.threerings.yohoho.client.YoFrame;
 import java.lang.ref.WeakReference;
 import java.util.List;
-import lebrigand.core.spyglass.BindingManager;
 import lebrigand.core.spyglass.ComponentManager;
+import lebrigand.core.spyglass.LeBrigandBindingManager;
 
 //import com.melloware.jintellitype.HotkeyListener;
 //import com.melloware.jintellitype.IntellitypeListener;
@@ -138,18 +137,18 @@ public class Bridge implements ActionListener {
             }
 
             YoFrame yoframe = app.getYoFrame();
-            BindingManager mgr = new BindingManager(new String[]{"com.threerings"});
+            LeBrigandBindingManager mgr = new LeBrigandBindingManager();
             mgr.setRootObject(yoframe);
             mgr.buildMappings();
             
-            BindingManager uiBindings = new BindingManager(new String[]{"com.threerings"});
+            LeBrigandBindingManager uiBindings = new LeBrigandBindingManager();
             uiBindings.setRootObject(frame);
             uiBindings.buildMappings();
             
-            Bridge.logger.info("YoFrame class field size: "+mgr.classFieldMap.size());
-            Bridge.logger.info("YoFrame derivative map size: "+mgr.derivativesMap.size());
-            Bridge.logger.info("JFrame class field size: "+uiBindings.classFieldMap.size());
-            Bridge.logger.info("JFrame derivative map size: "+uiBindings.derivativesMap.size());
+//            Bridge.logger.info("YoFrame class field size: "+mgr.classFieldMap.size());
+//            Bridge.logger.info("YoFrame derivative map size: "+mgr.derivativesMap.size());
+//            Bridge.logger.info("JFrame class field size: "+uiBindings.classFieldMap.size());
+//            Bridge.logger.info("JFrame derivative map size: "+uiBindings.derivativesMap.size());
 
 //			try {
 //				if (currentBot != null && currentBot.isAlive()) {
