@@ -37,7 +37,7 @@ public class BindingManager {
             this.selfField = BindingManager.class.getDeclaredField("self");
             this.createSelfBindings();
         } catch (NoSuchFieldException | SecurityException ex) {
-            Logger.getLogger(BindingManager.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BindingManager.class.getName()).log(Level.SEVERE, "Failed to initialize BindingManager", ex);
             throw new RuntimeException();
         }
     }
@@ -215,7 +215,7 @@ public class BindingManager {
          * Get the ObjectFieldPair that, when evaluated, will yield an Object of
          * class `className`.
          */
-        BindingManager.log.log(Level.INFO, "Attempting to get derivative for {0}", className);
+        BindingManager.log.log(Level.FINE, "Attempting to get derivative for {0}", className);
         // The null hash code is always ignored
         if (!this.derivativesMap.containsKey(className)) {
             // Target class not yet mapped, let's hope we find it now
@@ -227,7 +227,7 @@ public class BindingManager {
         }
 
         for (Derivative d : derivs) {
-            BindingManager.log.log(Level.INFO, "Trying {0}", d);
+            BindingManager.log.log(Level.FINE, "Trying {0}", d);
             // For each derivative that will yield a className object, try to resolve one of them
 
             try {
@@ -253,9 +253,9 @@ public class BindingManager {
                 }
                 return targetPair;
             } catch (ValueDerivationFailedError | IllegalArgumentException | IllegalAccessException | ObjectExpiredException ex) {
-                log.log(Level.INFO, String.format("Failed to use %s, trying next one if possible", d), ex);
+                log.log(Level.FINE, String.format("Failed to use %s, trying next one if possible", d), ex);
             } catch (NoSuchFieldException ex) {
-                log.log(Level.SEVERE, null, ex);
+                log.log(Level.SEVERE, "NoSuchFieldException when evaluating derivative", ex);
             }
         }
         if (rebuildMappingsIfFailed) {
@@ -287,10 +287,10 @@ public class BindingManager {
             derivs = this.derivativesMap.get(objectTypeName);
         }
         if (derivs.add(d)) {
-            log.log(Level.INFO, "Added a Derivative for type {0}: {1}", new Object[]{objectTypeName, d});
+            log.log(Level.FINE, "Added a Derivative for type {0}: {1}", new Object[]{objectTypeName, d});
         }
 
-        log.log(Level.INFO, "Inspecting object of type {0}", c.getName());
+        log.log(Level.FINE, "Inspecting object of type {0}", c.getName());
         Set<String> fieldNames;
         if (!this.classFieldMap.containsKey(c.getName())) {
             fieldNames = new HashSet<>();
@@ -301,26 +301,13 @@ public class BindingManager {
 
         Set<Field> fields = this.getAllFields(c);
 
-        log.log(Level.INFO, "{0} has {1} fields: {2}", new Object[]{objectTypeName, fields.size(), fields.toString()});
+        log.log(Level.FINE, "{0} has {1} fields: {2}", new Object[]{objectTypeName, fields.size(), fields.toString()});
 
         for (Field f : fields) {
             Class fieldType = f.getType();
 
             // Ignore fields for objects that aren't in BindingManager.classPrefixes
-            if (!fieldType.isPrimitive()) {
-                boolean ignore = false;
-                for (String prefix : this.classPrefixes) {
-                    if (fieldType.getName().startsWith(prefix)) {
-                        ignore = false;
-                        break;
-                    }
-                    // If there's at least one classPrefix, then ignore is true until a match is found
-                    ignore = true;
-                }
-                if (ignore) {
-                    continue;
-                }
-            } else {
+            if (fieldType.isPrimitive()) {
                 continue;
             }
 
@@ -330,14 +317,32 @@ public class BindingManager {
                 if (!f.canAccess(o)) {
                     f.setAccessible(true);
                 }
-                Object fieldValue = f.get(o);
-                int fieldValueHash = System.identityHashCode(fieldValue);
-                log.log(Level.INFO, "{0}.{1} = {2} (hash: {3})", new Object[]{objectTypeName, f.getName(), fieldValue, Integer.toString(fieldValueHash)});
-                if (!seenHashes.contains(fieldValueHash)) {
+            } catch (IllegalArgumentException ex) {
+                // IllegalArgumentException will be thrown if the field is private, but we can change that
+                log.log(Level.FINER, ex.getMessage(), ex);
+                f.setAccessible(true);
+            }
+            Object fieldValue;
+            try {
+                fieldValue = f.get(o);
+            } catch (IllegalArgumentException | IllegalAccessException ex) {
+                log.log(Level.SEVERE, ex.getClass().getName() + ": " + ex.getMessage() + " (Current obj: " + o.getClass().getName() + ")", ex);
+                continue;
+            }
+            int fieldValueHash = System.identityHashCode(fieldValue);
+            log.log(Level.FINE, "{0}.{1} = {2} (hash: {3})", new Object[]{objectTypeName, f.getName(), fieldValue, Integer.toString(fieldValueHash)});
+            if (!seenHashes.contains(fieldValueHash)) {
+                boolean ignore = false;
+                for (String prefix : this.classPrefixes) {
+                    if (fieldValue.getClass().getName().startsWith(prefix)) {
+                        ignore = false;
+                        break;
+                    }
+                    ignore = true;
+                }
+                if (!ignore) {
                     this.buildMappings(fieldValue, o, f, seenHashes);
                 }
-            } catch (IllegalArgumentException | IllegalAccessException ex) {
-                log.log(Level.SEVERE, null, ex);
             }
         }
     }

@@ -9,7 +9,7 @@ package lebrigand.core.spyglass;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
-class Derivative {
+public class Derivative {
 
     private final String className;
     private final String fieldName;

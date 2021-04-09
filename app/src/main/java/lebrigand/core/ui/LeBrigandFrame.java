@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JButton;
@@ -174,6 +175,7 @@ public class LeBrigandFrame extends JFrame implements Messenger, GameStateSubscr
             }
         });
         this.logHandler = new GuiLogHandler(this.logDoc);
+        this.logHandler.setLevel(Level.INFO);
         LeLogger.handlers.add(this.logHandler);
         LeLogger.setUpLogger();
     }

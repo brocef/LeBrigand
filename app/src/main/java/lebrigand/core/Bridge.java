@@ -161,6 +161,15 @@ public class Bridge implements ActionListener {
             BindingManager mgr = new BindingManager(new String[]{"com.threerings"});
             mgr.setRootObject(yoframe);
             mgr.buildMappings();
+            
+            BindingManager uiBindings = new BindingManager(new String[]{"com.threerings"});
+            uiBindings.setRootObject(frame);
+            uiBindings.buildMappings();
+            
+            Bridge.logger.info("YoFrame class field size: "+mgr.classFieldMap.size());
+            Bridge.logger.info("YoFrame derivative map size: "+mgr.derivativesMap.size());
+            Bridge.logger.info("JFrame class field size: "+uiBindings.classFieldMap.size());
+            Bridge.logger.info("JFrame derivative map size: "+uiBindings.derivativesMap.size());
 
 //			try {
 //				if (currentBot != null && currentBot.isAlive()) {
